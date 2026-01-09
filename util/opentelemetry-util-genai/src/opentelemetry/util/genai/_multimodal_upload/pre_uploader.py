@@ -93,13 +93,27 @@ class UriMetadata:
 
 
 class MultimodalPreUploader(PreUploader):
-    """Multimodal data preprocessor
+    """Multimodal data preprocessor for GenAI instrumentation
 
-    Processes Base64Blob/Blob/Uri, generates PreUploadItem list.
-    Actual upload is completed by Uploader implementation class.
+    This class preprocesses multimodal data (images, audio, video) from GenAI API calls,
+    converting Base64Blob/Blob/Uri references into uploadable items.
+    Actual upload operations are delegated to
+    :class:`~opentelemetry.util.genai._multimodal_upload.Uploader`.
+
+    Environment variables for configuration:
+    - :envvar:`OTEL_INSTRUMENTATION_GENAI_MULTIMODAL_UPLOAD_MODE`: Controls which messages to process
+      ("input", "output", or "both", default: "both")
+    - :envvar:`OTEL_INSTRUMENTATION_GENAI_MULTIMODAL_DOWNLOAD_ENABLED`: Enable downloading remote URIs
+      (default: "true")
+    - :envvar:`OTEL_INSTRUMENTATION_GENAI_MULTIMODAL_DOWNLOAD_SSL_VERIFY`: Enable SSL verification for downloads
+      (default: "true")
+
+    The ``httpx`` package (for URI metadata fetching)
+    should be installed. For audio format conversion support, install ``numpy`` and ``soundfile``.
+    You can use ``opentelemetry-util-genai[multimodal]`` as a requirement to achieve this.
 
     Note: Only one PreUploader implementation exists, as preprocessing logic is universal.
-    ARMS-specific extra_meta is injected via constructor.
+    Service-specific metadata (e.g., workspaceId, serviceId) is injected via constructor.
 
     Args:
         base_path: Complete base path including protocol (e.g., 'sls://project/logstore', 'file:///path')
