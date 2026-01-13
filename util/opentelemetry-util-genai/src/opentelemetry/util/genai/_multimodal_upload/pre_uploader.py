@@ -23,7 +23,6 @@ from __future__ import annotations
 import asyncio
 import base64
 import concurrent.futures
-import hashlib
 import io
 import logging
 import os
@@ -39,6 +38,9 @@ import httpx
 from opentelemetry import trace as ot_trace
 from opentelemetry.instrumentation.utils import suppress_http_instrumentation
 from opentelemetry.trace import SpanContext
+
+# LoongSuite Extension: For Python 3.8 Compatibility
+from opentelemetry.util.genai import compatible_hashlib as hashlib
 from opentelemetry.util.genai._multimodal_upload._base import (
     PreUploader,
     PreUploadItem,
