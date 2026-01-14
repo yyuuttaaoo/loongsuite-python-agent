@@ -23,46 +23,70 @@ from typing import Any, Mapping
 from unittest.mock import MagicMock, patch
 
 import pytest  # [Aliyun-Python-Agent]
+
 from opentelemetry import trace
 from opentelemetry.instrumentation._semconv import (
-    OTEL_SEMCONV_STABILITY_OPT_IN, _OpenTelemetrySemanticConventionStability)
+    OTEL_SEMCONV_STABILITY_OPT_IN,
+    _OpenTelemetrySemanticConventionStability,
+)
 from opentelemetry.sdk._logs import LoggerProvider
-from opentelemetry.sdk._logs.export import \
-    InMemoryLogExporter as \
-    InMemoryLogRecordExporter  # pylint: disable=no-name-in-module; [Aliyun Python Agent] This api is changed to InMemoryLogRecordExporter in 0.59b0
+from opentelemetry.sdk._logs.export import (
+    InMemoryLogExporter as InMemoryLogRecordExporter,  # pylint: disable=no-name-in-module; [Aliyun Python Agent] This api is changed to InMemoryLogRecordExporter in 0.59b0
+)
 from opentelemetry.sdk._logs.export import SimpleLogRecordProcessor
 from opentelemetry.sdk.trace import ReadableSpan, TracerProvider
 from opentelemetry.sdk.trace.export import SimpleSpanProcessor
-from opentelemetry.sdk.trace.export.in_memory_span_exporter import \
-    InMemorySpanExporter
-from opentelemetry.semconv._incubating.attributes import \
-    gen_ai_attributes as GenAI
-from opentelemetry.semconv.attributes import \
-    error_attributes as ErrorAttributes
-from opentelemetry.semconv.attributes import \
-    server_attributes as ServerAttributes
+from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
+    InMemorySpanExporter,
+)
+from opentelemetry.semconv._incubating.attributes import (
+    gen_ai_attributes as GenAI,
+)
+from opentelemetry.semconv.attributes import (
+    error_attributes as ErrorAttributes,
+)
+from opentelemetry.semconv.attributes import (
+    server_attributes as ServerAttributes,
+)
 from opentelemetry.trace.status import StatusCode
 from opentelemetry.util.genai._extended_semconv.gen_ai_extended_attributes import (
-    GEN_AI_EMBEDDINGS_DIMENSION_COUNT, GEN_AI_RERANK_DOCUMENTS_COUNT,
-    GEN_AI_RETRIEVAL_DOCUMENTS, GEN_AI_RETRIEVAL_QUERY,
-    GEN_AI_TOOL_CALL_ARGUMENTS, GEN_AI_TOOL_CALL_RESULT)
+    GEN_AI_EMBEDDINGS_DIMENSION_COUNT,
+    GEN_AI_RERANK_DOCUMENTS_COUNT,
+    GEN_AI_RETRIEVAL_DOCUMENTS,
+    GEN_AI_RETRIEVAL_QUERY,
+    GEN_AI_TOOL_CALL_ARGUMENTS,
+    GEN_AI_TOOL_CALL_RESULT,
+)
 from opentelemetry.util.genai._multimodal_processing import (
-    MultimodalProcessingMixin, _MultimodalAsyncTask)
+    MultimodalProcessingMixin,
+    _MultimodalAsyncTask,
+)
 from opentelemetry.util.genai.environment_variables import (
     OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT,
-    OTEL_INSTRUMENTATION_GENAI_EMIT_EVENT)
-from opentelemetry.util.genai.extended_handler import \
-    get_extended_telemetry_handler
-from opentelemetry.util.genai.extended_types import (CreateAgentInvocation,
-                                                     EmbeddingInvocation,
-                                                     ExecuteToolInvocation,
-                                                     InvokeAgentInvocation,
-                                                     RerankInvocation,
-                                                     RetrieveInvocation)
-from opentelemetry.util.genai.types import (Base64Blob, Blob, Error,
-                                            FunctionToolDefinition,
-                                            InputMessage, LLMInvocation,
-                                            OutputMessage, Text, Uri)
+    OTEL_INSTRUMENTATION_GENAI_EMIT_EVENT,
+)
+from opentelemetry.util.genai.extended_handler import (
+    get_extended_telemetry_handler,
+)
+from opentelemetry.util.genai.extended_types import (
+    CreateAgentInvocation,
+    EmbeddingInvocation,
+    ExecuteToolInvocation,
+    InvokeAgentInvocation,
+    RerankInvocation,
+    RetrieveInvocation,
+)
+from opentelemetry.util.genai.types import (
+    Base64Blob,
+    Blob,
+    Error,
+    FunctionToolDefinition,
+    InputMessage,
+    LLMInvocation,
+    OutputMessage,
+    Text,
+    Uri,
+)
 
 
 def patch_env_vars(stability_mode, content_capturing=None, emit_event=None):
@@ -117,8 +141,9 @@ def _assert_span_attributes(
 class TestExtendedTelemetryHandler(unittest.TestCase):  # pylint: disable=too-many-public-methods
     def setUp(self):
         # [Aliyun Python Agent] Reset ArmsCommonServiceMetrics singleton to avoid test interference
-        from aliyun.sdk.extension.arms.semconv.metrics import \
-            MetricsSingletonMeta  # noqa: PLC0415  # pylint: disable=import-outside-toplevel
+        from aliyun.sdk.extension.arms.semconv.metrics import (  # noqa: PLC0415  # pylint: disable=import-outside-toplevel
+            MetricsSingletonMeta,
+        )
 
         MetricsSingletonMeta.reset()
 

@@ -31,7 +31,7 @@ import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union
+from typing import Any, ClassVar, Dict, List, Optional, Tuple, Union, get_args
 
 import httpx
 
@@ -71,8 +71,8 @@ if not _audio_libs_available:
         "numpy or soundfile not available, PCM16 to WAV conversion will be skipped"
     )
 
-# Supported modality types for pre-upload
-_SUPPORTED_MODALITIES = ("image", "video", "audio")
+# Supported modality types for pre-upload (derived from Modality type)
+_SUPPORTED_MODALITIES = get_args(Modality)
 
 # Maximum number of multimodal parts to process per message category (input/output)
 _MAX_MULTIMODAL_PARTS = 10
@@ -735,7 +735,7 @@ class MultimodalPreUploader(PreUploader):
                 if mime_type in ("audio/unknown", "audio/*", "audio"):
                     detected_mime = self._detect_audio_format(data)
                     if detected_mime:
-                        _logger.info(
+                        _logger.debug(
                             "Auto-detected audio format: %s -> %s",
                             mime_type,
                             detected_mime,
@@ -745,7 +745,7 @@ class MultimodalPreUploader(PreUploader):
                 if mime_type in ("audio/pcm16", "audio/l16", "audio/pcm"):
                     wav_data = self._convert_pcm16_to_wav(data)
                     if wav_data:
-                        _logger.info(
+                        _logger.debug(
                             "Converted PCM16 to WAV format, original size: %d, new size: %d",
                             len(data),
                             len(wav_data),
